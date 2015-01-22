@@ -3,7 +3,7 @@
 # rails-api new <app_name> --database=postgresql -T -m path/to/this/file/template.rb
 
 def source_paths
-  Array(super) + 
+  Array(super) +
     [File.join(File.expand_path(File.dirname(__FILE__)),'files')]
 end
 
@@ -21,6 +21,11 @@ gem_group :development, :test do
   gem "factory_girl_rails", "~> 4.0"
   gem "faker"
   gem "codeclimate-test-reporter", require: nil
+end
+
+gem_group :development do
+  gem 'guard'
+  gem 'guard-rails'
 end
 
 # add gems for production env
@@ -51,19 +56,20 @@ end
 after_bundle do
   run "rake db:create"
   run "rake db:migrate"
+  run 'guard init rails'
   git :init
   git add: "."
   git commit: %Q{ -m 'Initial commit' }
 end
 
-# you may need to make more specific changes to files that 
-# aren't supported directly by the API. Thor provides two 
+# you may need to make more specific changes to files that
+# aren't supported directly by the API. Thor provides two
 # methods to give you this control: insert_into_file and gsub_file.
 
 =begin
 gsub_file "Gemfile", /^gem\s+["']sqlite3["'].*$/,''
 gsub_file "Gemfile", /^gem\s+["']turbolinks["'].*$/,''
-insert_into_file 'Gemfile', "\nruby '2.1.0'", 
+insert_into_file 'Gemfile', "\nruby '2.1.0'",
  after: "source 'https://rubygems.org'\n"
 inside 'config' do
   insert_into_file 'environment.rb', "$stdout.sync = true\n"
